@@ -61,11 +61,19 @@ const DashboardLayout = () => {
     navigate("/login");
   };
 
+  const closeMenu = () => setOpen(false);
+
   return (
     <div className="app-shell">
-      <button className={`sidebar-backdrop ${open ? "show" : ""}`} onClick={() => setOpen(false)} aria-label="Close menu" />
-      <motion.aside className={`sidebar ${open ? "show" : ""}`} initial={{ x: -28, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
-        <button className="sidebar-close" onClick={() => setOpen(false)} title="Close menu">
+      <button
+        type="button"
+        className={`sidebar-backdrop ${open ? "show" : ""}`}
+        onClick={closeMenu}
+        onPointerDown={closeMenu}
+        aria-label="Close menu"
+      />
+      <motion.aside className={`sidebar ${open ? "show" : ""}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <button type="button" className="sidebar-close" onClick={closeMenu} onPointerDown={closeMenu} title="Close menu" aria-label="Close menu">
           <X size={22} />
         </button>
         <div className="brand">
@@ -77,7 +85,7 @@ const DashboardLayout = () => {
         </div>
         <nav>
           {links.filter((link) => link.roles.includes(user?.role)).map(({ to, label, icon: Icon }) => (
-            <NavLink key={to} to={to} onClick={() => setOpen(false)}>
+            <NavLink key={to} to={to} onClick={closeMenu}>
               <Icon size={18} />
               <span>{label}</span>
             </NavLink>
@@ -86,7 +94,7 @@ const DashboardLayout = () => {
       </motion.aside>
       <main className="main-panel">
         <header className="topbar">
-          <button className="icon-btn menu-btn" onClick={() => setOpen((value) => !value)} title="Toggle menu">
+          <button type="button" className="icon-btn menu-btn" onClick={() => setOpen((value) => !value)} title="Toggle menu" aria-label="Toggle menu">
             {open ? <X size={20} /> : <Menu size={20} />}
           </button>
           <div>

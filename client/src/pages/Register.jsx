@@ -1,4 +1,4 @@
-import { UserPlus } from "lucide-react";
+import { HelpCircle, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -9,10 +9,12 @@ const Register = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", role: "Homeowner" });
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
 
   const submit = async (event) => {
     event.preventDefault();
     setError("");
+    setInfo("");
     try {
       await register(form);
       navigate("/");
@@ -38,7 +40,19 @@ const Register = () => {
             <option>Guest</option>
           </select>
         </label>
+        {info && <div className="alert info">{info}</div>}
+        <button
+          type="button"
+          className="link-button auth-help-button"
+          onClick={() => setInfo("If this is your first NexaHome account, it becomes Admin automatically. Later users can be changed by Admin in User Management.")}
+        >
+          <HelpCircle size={16} /> Need help choosing role?
+        </button>
         <button className="primary-btn" type="submit"><UserPlus size={18} /> Register</button>
+        <div className="auth-support">
+          <strong>Account setup</strong>
+          <span>Use Homeowner for family members and Guest for temporary limited access.</span>
+        </div>
         <span className="auth-link">Already registered? <Link to="/login">Login</Link></span>
       </form>
     </main>
