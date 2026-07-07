@@ -36,11 +36,15 @@ const links = [
   { to: "/settings", label: "Settings", icon: Settings, roles: ["Admin", "Homeowner", "Guest"] }
 ];
 
+const mobileTabs = ["/", "/devices", "/rooms", "/notifications", "/settings"];
+
 const DashboardLayout = () => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [toast, setToast] = useState("");
 
   useEffect(() => {
@@ -52,27 +56,45 @@ const DashboardLayout = () => {
   }, [user?._id]);
 
   useEffect(() => {
-    document.body.classList.toggle("menu-open", open);
+    document.body.classList.toggle("menu-open", mobileMenuOpen);
     return () => document.body.classList.remove("menu-open");
-  }, [open]);
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 760px)");
+    const sync = () => {
+      setIsMobile(media.matches);
+      if (!media.matches) setMobileMenuOpen(false);
+    };
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
 
   const doLogout = () => {
     logout();
     navigate("/login");
   };
 
-  const closeMenu = () => setOpen(false);
+  const closeMenu = () => setMobileMenuOpen(false);
+  const toggleMenu = () => {
+    if (isMobile) {
+      setMobileMenuOpen((value) => !value);
+    } else {
+      setDesktopSidebarOpen((value) => !value);
+    }
+  };
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${desktopSidebarOpen ? "" : "sidebar-collapsed"}`}>
       <button
         type="button"
-        className={`sidebar-backdrop ${open ? "show" : ""}`}
+        className={`sidebar-backdrop ${mobileMenuOpen ? "show" : ""}`}
         onClick={closeMenu}
         onPointerDown={closeMenu}
         aria-label="Close menu"
       />
-      <motion.aside className={`sidebar ${open ? "show" : ""}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <motion.aside className={`sidebar ${mobileMenuOpen ? "show" : ""}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <button type="button" className="sidebar-close" onClick={closeMenu} onPointerDown={closeMenu} title="Close menu" aria-label="Close menu">
           <X size={22} />
         </button>
@@ -94,8 +116,8 @@ const DashboardLayout = () => {
       </motion.aside>
       <main className="main-panel">
         <header className="topbar">
-          <button type="button" className="icon-btn menu-btn" onClick={() => setOpen((value) => !value)} title="Toggle menu" aria-label="Toggle menu">
-            {open ? <X size={20} /> : <Menu size={20} />}
+          <button type="button" className="icon-btn menu-btn" onClick={toggleMenu} title="Toggle menu" aria-label="Toggle menu">
+            {(isMobile ? mobileMenuOpen : desktopSidebarOpen) ? <X size={20} /> : <Menu size={20} />}
           </button>
           <div>
             <h1>{user?.role} Workspace</h1>
@@ -118,6 +140,16 @@ const DashboardLayout = () => {
           <Outlet />
         </motion.section>
       </main>
+      <nav className="mobile-tabbar" aria-label="Mobile navigation">
+        {links
+          .filter((link) => mobileTabs.includes(link.to) && link.roles.includes(user?.role))
+          .map(({ to, label, icon: Icon }) => (
+            <NavLink key={to} to={to} end={to === "/"}>
+              <Icon size={19} />
+              <span>{label === "Notifications" ? "Alerts" : label}</span>
+            </NavLink>
+          ))}
+      </nav>
     </div>
   );
 };
