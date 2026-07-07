@@ -1,5 +1,5 @@
 import { HelpCircle, UserPlus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import nexaLogo from "../assets/nexahome-logo.png";
@@ -10,6 +10,10 @@ const Register = () => {
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", role: "Homeowner" });
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0 });
+  }, []);
 
   const submit = async (event) => {
     event.preventDefault();
