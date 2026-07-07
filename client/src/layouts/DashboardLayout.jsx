@@ -51,6 +51,11 @@ const DashboardLayout = () => {
     return () => socket.disconnect();
   }, [user?._id]);
 
+  useEffect(() => {
+    document.body.classList.toggle("menu-open", open);
+    return () => document.body.classList.remove("menu-open");
+  }, [open]);
+
   const doLogout = () => {
     logout();
     navigate("/login");
@@ -58,7 +63,11 @@ const DashboardLayout = () => {
 
   return (
     <div className="app-shell">
+      <button className={`sidebar-backdrop ${open ? "show" : ""}`} onClick={() => setOpen(false)} aria-label="Close menu" />
       <motion.aside className={`sidebar ${open ? "show" : ""}`} initial={{ x: -28, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
+        <button className="sidebar-close" onClick={() => setOpen(false)} title="Close menu">
+          <X size={22} />
+        </button>
         <div className="brand">
           <img src={nexaLogo} alt="NexaHome logo" />
           <div>
