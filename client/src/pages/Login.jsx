@@ -1,4 +1,4 @@
-import { HelpCircle, KeyRound, LogIn } from "lucide-react";
+import { Eye, EyeOff, HelpCircle, KeyRound, LogIn } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -10,6 +10,7 @@ const Login = () => {
   const [form, setForm] = useState({ email: "admin@smarthome.com", password: "Admin123" });
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
@@ -35,7 +36,14 @@ const Login = () => {
         <p>Sign in to control devices, rules, alerts, and activity.</p>
         {error && <div className="alert error">{error}</div>}
         <label>Email<input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></label>
-        <label>Password<input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required /></label>
+        <label>Password
+          <span className="password-field">
+            <input type={showPassword ? "text" : "password"} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+            <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"}>
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </span>
+        </label>
         {info && <div className="alert info">{info}</div>}
         <div className="auth-actions">
           <button

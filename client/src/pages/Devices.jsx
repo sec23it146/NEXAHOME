@@ -5,6 +5,7 @@ import EmptyState from "../components/EmptyState.jsx";
 import Modal from "../components/Modal.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import api from "../services/api.js";
+import { updateDeviceListOptimistic } from "../utils/devices.js";
 
 const blank = { name: "", category: "Smart Light", location: "", status: "OFF", isActive: false, sensorValue: "", sensorUnit: "", assignedTo: [] };
 
@@ -42,7 +43,16 @@ const Devices = () => {
     load();
   };
 
-  const toggle = async (id) => { await api.patch(`/devices/${id}/toggle`); load(); };
+  const toggle = async (id) => {
+    const previous = devices;
+    setDevices((current) => updateDeviceListOptimistic(current, id));
+    try {
+      await api.patch(`/devices/${id}/toggle`);
+      load();
+    } catch (error) {
+      setDevices(previous);
+    }
+  };
   const remove = async (id) => { if (confirm("Delete this device?")) { await api.delete(`/devices/${id}`); load(); } };
 
   return (

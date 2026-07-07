@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { isDeviceActive } from "../utils/devices.js";
 
 const energyData = [
   { day: "Mon", energy: 18, usage: 42 },
@@ -121,10 +122,10 @@ export const DeviceShowcase = ({ devices = [], onToggle, readonly = false }) => 
       <div className="showcase-grid">
         {visibleDevices.map((device, index) => {
           const Icon = categoryIcons[device.category] || RadioTower;
-          const active = device.isActive || ["ON", "LOCKED"].includes(device.status);
+          const active = isDeviceActive(device);
           const isPlaceholder = !devices.length;
           return (
-            <motion.article className="showcase-card" key={device._id || device.name} whileHover={{ y: -8 }}>
+            <motion.article className={`showcase-card ${active ? "device-on" : "device-off"}`} key={device._id || device.name} whileHover={{ y: -8 }}>
               <span className="device-orb"><Icon size={24} /></span>
               <div>
                 <h4>{device.name}</h4>
@@ -135,6 +136,7 @@ export const DeviceShowcase = ({ devices = [], onToggle, readonly = false }) => 
                 <strong>{active ? 12 + index * 3 : 0}W</strong>
               </div>
               <button
+                type="button"
                 className={`smart-switch ${active ? "active" : ""}`}
                 disabled={readonly || isPlaceholder}
                 onClick={() => onToggle?.(device._id)}

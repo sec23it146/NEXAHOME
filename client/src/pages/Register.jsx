@@ -1,4 +1,4 @@
-import { HelpCircle, UserPlus } from "lucide-react";
+import { Eye, EyeOff, HelpCircle, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -10,6 +10,7 @@ const Register = () => {
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", role: "Homeowner" });
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
@@ -37,7 +38,14 @@ const Register = () => {
         <label>Name<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></label>
         <label>Email<input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></label>
         <label>Phone<input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label>
-        <label>Password<input type="password" minLength="6" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required /></label>
+        <label>Password
+          <span className="password-field">
+            <input type={showPassword ? "text" : "password"} minLength="6" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+            <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"}>
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </span>
+        </label>
         <label>Role
           <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
             <option>Homeowner</option>

@@ -5,11 +5,29 @@ import MetricCard from "../components/MetricCard.jsx";
 import { DeviceShowcase, FloorMap, SecurityCenter, SmartHomeOverview, WelcomeHero } from "../components/PremiumWidgets.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import api from "../services/api.js";
+import { isDeviceActive, updateDeviceListOptimistic } from "../utils/devices.js";
 
 const GuestDashboard = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState({ devices: [] });
-  useEffect(() => { api.get("/dashboard/homeowner").then(({ data }) => setStats(data)); }, []);
+  const load = () => api.get("/dashboard/homeowner").then(({ data }) => setStats(data));
+  useEffect(() => { load(); }, []);
+
+  const toggle = async (id) => {
+    const previous = stats;
+    const nextDevices = updateDeviceListOptimistic(stats.devices || [], id);
+    setStats({
+      ...stats,
+      devices: nextDevices,
+      activeDevices: nextDevices.filter(isDeviceActive).length
+    });
+    try {
+      await api.patch(`/devices/${id}/toggle`);
+      load();
+    } catch (error) {
+      setStats(previous);
+    }
+  };
 
   return (
     <div className="page-stack">
@@ -23,17 +41,9 @@ const GuestDashboard = () => {
         <MetricCard label="Visible Devices" value={stats.totalDevices || 0} icon={Eye} tone="blue" />
       </div>
       <section className="device-grid">
-        {stats.devices?.map((device) => <DeviceCard key={device._id} device={device} onToggle={async (id) => {
-          await api.patch(`/devices/${id}/toggle`);
-          const { data } = await api.get("/dashboard/homeowner");
-          setStats(data);
-        }} />)}
+        {stats.devices?.map((device) => <DeviceCard key={device._id} device={device} onToggle={toggle} />)}
       </section>
-      <DeviceShowcase devices={stats.devices || []} onToggle={async (id) => {
-        await api.patch(`/devices/${id}/toggle`);
-        const { data } = await api.get("/dashboard/homeowner");
-        setStats(data);
-      }} />
+      <DeviceShowcase devices={stats.devices || []} onToggle={toggle} />
       <div className="two-column">
         <FloorMap />
         <SecurityCenter />

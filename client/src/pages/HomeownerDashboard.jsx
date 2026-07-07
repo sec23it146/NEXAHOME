@@ -5,6 +5,7 @@ import MetricCard from "../components/MetricCard.jsx";
 import { AnalyticsPanel, DeviceShowcase, FloorMap, SecurityCenter, SmartHomeOverview, WelcomeHero } from "../components/PremiumWidgets.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import api from "../services/api.js";
+import { isDeviceActive, updateDeviceListOptimistic } from "../utils/devices.js";
 
 const HomeownerDashboard = () => {
   const { user } = useAuth();
@@ -14,8 +15,19 @@ const HomeownerDashboard = () => {
   useEffect(() => { load(); }, []);
 
   const toggle = async (id) => {
-    await api.patch(`/devices/${id}/toggle`);
-    load();
+    const previous = stats;
+    const nextDevices = updateDeviceListOptimistic(stats.devices || [], id);
+    setStats({
+      ...stats,
+      devices: nextDevices,
+      activeDevices: nextDevices.filter(isDeviceActive).length
+    });
+    try {
+      await api.patch(`/devices/${id}/toggle`);
+      load();
+    } catch (error) {
+      setStats(previous);
+    }
   };
 
   return (
