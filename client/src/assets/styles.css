@@ -363,13 +363,28 @@ input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px 
 }
 
 @media (min-width: 761px) {
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 9;
+    height: 100vh;
+    height: 100dvh;
+    transform: translateX(0);
+  }
+  .main-panel {
+    margin-left: 286px;
+  }
   .app-shell.sidebar-collapsed .sidebar {
-    width: 0;
-    padding-left: 0;
-    padding-right: 0;
-    border-right: 0;
+    width: 286px;
+    padding-left: 18px;
+    padding-right: 18px;
+    border-right: 1px solid var(--line);
     opacity: 0;
+    transform: translateX(-100%);
     pointer-events: none;
+  }
+  .app-shell.sidebar-collapsed .main-panel {
+    margin-left: 0;
   }
   .app-shell.sidebar-collapsed .sidebar .brand,
   .app-shell.sidebar-collapsed .sidebar nav {
